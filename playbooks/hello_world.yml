@@ -1,0 +1,8 @@
+---
+- name: Hello World from Automation Orchestrator
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Print triggered message
+      ansible.builtin.debug:
+        msg: "Orchestrator triggered! Event: {{ trigger_message | default('(no message)') }}"

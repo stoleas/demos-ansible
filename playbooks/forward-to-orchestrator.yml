@@ -1,0 +1,29 @@
+---
+# Forwarder playbook: called by EDA to POST a Kafka event to the Orchestrator EDA webhook.
+# Variables expected:
+#   orchestrator_event   - the raw Kafka event dict
+#   orchestrator_topic   - source topic name
+#   orchestrator_url     - Orchestrator base URL (set in job template extra vars or Survey)
+#   orchestrator_token   - Bearer token (stored in AAP credential or Survey)
+- name: Forward event to Automation Orchestrator
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: POST event to Orchestrator EDA webhook
+      ansible.builtin.uri:
+        url: "{{ orchestrator_url }}/api/v1/webhooks/eda/demo"
+        method: POST
+        headers:
+          Authorization: "Bearer {{ orchestrator_token }}"
+          Content-Type: application/json
+        body_format: json
+        body:
+          kafka_topic: "{{ orchestrator_topic }}"
+          payload: "{{ orchestrator_event }}"
+        validate_certs: false
+        status_code: [200, 201, 202]
+      register: webhook_result
+
+    - name: Show webhook response
+      ansible.builtin.debug:
+        var: webhook_result.json
