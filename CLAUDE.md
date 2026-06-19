@@ -8,8 +8,8 @@ Git-backed content for the **Kafka → EDA → Automation Orchestrator** demo. A
 
 **Target flow:**
 ```
-Kafka topic: demo-events
-  → EDA rulebook (eda/rulebook.yml)
+EDA Event Stream (HTTP POST)
+  → EDA rulebook (rulebooks/rulebook.yml)
   → run_job_template: "Orchestrator Webhook Forward"
   → playbooks/forward-to-orchestrator.yml
   → POST /api/v1/webhooks/demo
@@ -19,8 +19,8 @@ Kafka topic: demo-events
 ## Repo Structure
 
 ```
-eda/
-  rulebook.yml        # EDA project source — Kafka consumer → run_job_template
+rulebooks/
+  rulebook.yml        # EDA project source — event stream → run_job_template
 playbooks/
   forward-to-orchestrator.yml   # Controller project source — POSTs to Orchestrator webhook
   hello_world.yml               # Controller project source — triggered by Orchestrator n3 node
@@ -33,7 +33,7 @@ Two separate AAP projects point at this repo:
 | AAP Project | Playbook dir | Used by |
 |---|---|---|
 | Orchestrator Demo Playbooks | `playbooks/` | "Orchestrator Webhook Forward" and "Demo Hello World" job templates |
-| Orchestrator Demo Rulebook | `eda/` | EDA rulebook activation |
+| Orchestrator Demo Rulebook | `rulebooks/` | EDA rulebook activation |
 
 ## Key Variables
 
@@ -55,8 +55,7 @@ Fetches a fresh Orchestrator JWT at runtime — no static token baked in.
 
 ## Pending Work
 
-- **Remove Kafka** — Kafka is not relevant to the demo going forward; `eda/rulebook.yml` uses it as a source but the plan is to replace or remove this path.
-- **External git server** — The demo was initially wired to a git endpoint running on SNO (`http://orch-demo-git.aap.svc.cluster.local:9000/cgi-bin/git/orch-demo.git`). This should be decommissioned once the demo is validated against an external git source. The SNO git service is defined in `orchestrator-demo/git-svc.yaml` in `install-nexus-operator` and should be deleted from the cluster.
+- **External git server** — The demo was initially wired to a git endpoint running on SNO (`http://orch-demo-git.aap.svc.cluster.local:9000/cgi-bin/git/orch-demo.git`). This should be decommissioned once the demo is validated against the external GitHub repo. The SNO git service is defined in `orchestrator-demo/git-svc.yaml` in `install-nexus-operator` and should be deleted from the cluster.
 - **Orchestrator webhook path** — The correct endpoint is `POST /api/v1/webhooks/demo` — there is no `/eda/` prefix despite the trigger type being `webhook_trigger`.
 
 ## Cluster Context
