@@ -1,19 +1,13 @@
 ---
-# EDA Rulebook: reads from Kafka demo-events and forwards to Orchestrator.
-# This rulebook runs a job template that POSTs to the Orchestrator EDA webhook.
-# The job template "Orchestrator Webhook Forward" must exist in AAP (setup.sh creates it).
-- name: Kafka to Automation Orchestrator Demo
+- name: Webhook to Automation Orchestrator Demo
   hosts: all
   sources:
-    - ansible.eda.kafka:
-        host: kafka-broker.kafka.svc.cluster.local
-        port: 9092
-        topic: demo-events
-        group_id: eda-demo-consumer
-        encoding: json
+    - ansible.eda.webhook:
+        host: 0.0.0.0
+        port: 5000
 
   rules:
-    - name: Forward Kafka event to Orchestrator
+    - name: Forward event to Orchestrator
       condition: event is defined
       actions:
         - run_job_template:
@@ -22,4 +16,4 @@
             job_args:
               extra_vars:
                 orchestrator_event: "{{ event }}"
-                orchestrator_topic: demo-events
+                orchestrator_topic: eda-webhook
